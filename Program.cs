@@ -22,6 +22,7 @@ namespace innoculus
 		private static bool _hasAdminRights = false;
 		private static ProcessMonitor _monitor = null;
 		private static OculusManager _mgr = null;
+	    private static ILogger _logger= new Logger();
 
 		public static void Main(params string[] args)
 		{
@@ -35,11 +36,11 @@ namespace innoculus
 			try
 			{
 				CheckAdminRights();
-				Console.WriteLine("Running with Admin privileges");
+				_logger.Log("Running with Admin privileges");
 			}
 			catch (System.Security.SecurityException)
 			{
-				Console.WriteLine("Running without Admin privileges");
+				_logger.Log("Running without Admin privileges");
 			}
 
 			_mgr = new OculusManager();
@@ -49,24 +50,24 @@ namespace innoculus
 
 			if (_monitor.HasProcess)
 			{
-				Console.WriteLine("Found process: " + OculusManager.OCULUS_PROCESS_NAME);
+				_logger.Log("Found process: " + OculusManager.OCULUS_PROCESS_NAME);
 			}
 			else
 			{
-				Console.WriteLine("No process. Starting: " + _mgr.InstallationPath);
+				_logger.Log("No process. Starting: " + _mgr.InstallationPath);
 				DisableService(!_hasAdminRights);
 				_mgr.StartOculusHome(_monitor);
 			}
 
 			if (_monitor.HasProcess)
 			{
-				Console.WriteLine("Waiting for process to exit");
+				_logger.Log("Waiting for process to exit");
 				_monitor.ProcessExited += Monitor_ProcessExited;
 				Application.Run();
 			}
 			else
 			{
-				Console.WriteLine("Exiting; No process: " + OculusManager.OCULUS_PROCESS_NAME);
+				_logger.Log("Exiting; No process: " + OculusManager.OCULUS_PROCESS_NAME);
 			}
 			_mgr.StopOculusHome();
 		}
@@ -79,7 +80,7 @@ namespace innoculus
 
 		public static void RestartWithAdmin(string args)
 		{
-			Console.WriteLine("Restarting process with permissions for: " + args);
+			_logger.Log("Restarting process with permissions for: " + args);
 			var process = new Process
 			{
 				StartInfo = new ProcessStartInfo
@@ -92,19 +93,19 @@ namespace innoculus
 			process.Start();
 			System.Threading.Thread.Sleep(1000);
 			process.WaitForExit();
-			Console.WriteLine("Admin process complete");
+			_logger.Log("Admin process complete");
 		}
 
 		private static void Monitor_ProcessExited(object sender, EventArgs e)
 		{
-			Console.WriteLine("Process exited");
+			_logger.Log("Process exited");
 			_mgr.StopOculusHome();
 			Application.Exit();
 		}
 
 		private static void DisableService(bool needsAdmin)
 		{
-			Console.WriteLine("Stopping service: " + OculusManager.OCULUS_SERVICE_NAME);
+			_logger.Log("Stopping service: " + OculusManager.OCULUS_SERVICE_NAME);
 			try
 			{
 				var svc = new ServiceController(OculusManager.OCULUS_SERVICE_NAME);
@@ -121,17 +122,17 @@ namespace innoculus
 					}
 					if (svc.Status != ServiceControllerStatus.Running)
 					{
-						Console.WriteLine("Service stopped");
+						_logger.Log("Service stopped");
 					}
 					else
 					{
-						Console.WriteLine("Service not stopped");
+						_logger.Log("Service not stopped");
 					}
 				}
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine("[ERROR] Failed to stop service: " + ex.Message);
+				_logger.Log("[ERROR] Failed to stop service: " + ex.Message);
 			}
 		}
 	}

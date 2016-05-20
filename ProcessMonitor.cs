@@ -12,6 +12,7 @@ namespace innoculus
         private readonly string _processName;
         private Process _process = null;
         private Task _watchTask = null;
+        
 
         public bool HasProcess { get { return _process != null; } }
 

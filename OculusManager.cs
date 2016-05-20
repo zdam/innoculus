@@ -18,6 +18,7 @@ namespace innoculus
 		public const string OCULUS_SERVER_NAME = "OVRServer_x64";
 		public const string OCULUS_SERVER_SUBPATH = @"Support\oculus-runtime\OVRServer_x64.exe";
 		public const string OCULUS_PROCESS_SUBPATH = @"Support\oculus-client\OculusClient.exe";
+        private static ILogger _logger= new Logger();
 
 		public string InstallationPath { get; private set; }
 
@@ -71,7 +72,7 @@ namespace innoculus
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine("[ERROR] Failed to stop server: " + ex.Message);
+				_logger.Log("[ERROR] Failed to stop server: " + ex.Message);
 			}
 		}
 
@@ -113,7 +114,7 @@ namespace innoculus
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine("[ERROR] Failed to start service: {0}" + ex.Message);
+				_logger.Log("[ERROR] Failed to start service: {0}" + ex.Message);
 			}
 		}
 	}
